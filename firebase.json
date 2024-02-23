@@ -10,5 +10,8 @@
         "firebase-debug.*.log"
       ]
     }
+  ],
+  "predeploy": [
+    "source functions/venv/bin/activate && python3.11 -m pip install -r functions/requirements.txt"
   ]
 }

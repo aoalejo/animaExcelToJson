@@ -7,12 +7,10 @@ Original file is located at
     https://colab.research.google.com/drive/1GYtiAtEWX1_GmTxa6FaDMBIlW0P2PRby
 """
 
-import openpyxl
 import pandas
 import time
 import base64
 import unicodedata
-import json
 
 def strip_accent(text):
     return ''.join((c for c in unicodedata.normalize('NFD', text) if unicodedata.category(c) != 'Mn'))
@@ -20,23 +18,6 @@ def strip_accent(text):
 
 def contains(collection, this_item):
     return this_item in collection
-
-
-def range_to_json(hoja, range_str, keys, values, name):
-    wb = openpyxl.load_workbook('your_workbook.xlsx')
-    ws = wb[hoja]
-    items = {name: {}}
-    keys_values = set()
-    for row in ws[range_str]:
-        key = row[ws[range_str].index(keys)].value
-        if key and key not in keys_values:
-            stripped_key = strip_accent(key)
-            stripped_value = strip_accent(
-                row[ws[range_str].index(values)].value)
-            items[name][stripped_key] = stripped_value
-            keys_values.add(key)
-    return json.dumps(items).replace("'", '"')
-
 
 def separate_alpha_numeric(input_string):
     alpha_chars = "".join([char for char in input_string if char.isalpha()])

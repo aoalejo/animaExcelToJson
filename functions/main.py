@@ -3,6 +3,7 @@
 # Deploy with `firebase deploy`
 
 import time
+import json
 
 from firebase_functions import https_fn
 from firebase_admin import initialize_app
@@ -19,13 +20,18 @@ import excelToJson
 app = initialize_app()
 
 @https_fn.on_request()
-def convertSheet(req: https_fn.Request) -> https_fn.Response:
+def convertSheet(request: https_fn.Request) -> https_fn.Response:
     t = time.process_time()
 
     """Take the text parameter passed to this HTTP endpoint and insert it into
     a new document in the messages collection."""
     # Grab the text parameter.
-    sheet = req.args.get("sheet")
+    # sheet = req.args["sheet"]
+    print(request)
+
+    body = request.get_json(silent=True)
+    sheet = body["sheet"]
+
     if sheet is None:
         return https_fn.Response("No sheet provided", status=400)
     
@@ -39,4 +45,4 @@ def convertSheet(req: https_fn.Request) -> https_fn.Response:
     elapsed_time = time.process_time() - t
 
     # Send back a message that we've successfully written the message
-    return https_fn.Response('{"time": "all done at %.2f seconds", "sheet": ' + json + '}}', elapsed_time)
+    return https_fn.Response('{"time": "all done at ' + str(elapsed_time) + ' seconds", "sheet": ' + json + '}')
