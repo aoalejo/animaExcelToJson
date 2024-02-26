@@ -22,7 +22,8 @@ def contains(collection, this_item):
 def separate_alpha_numeric(input_string):
     alpha_chars = "".join([char for char in input_string if char.isalpha()])
     numeric_chars = int(
-        "".join([char for char in input_string if char.isdigit()])) - 2
+        "".join([char for char in input_string if char.isdigit()])) - 1
+    
     return [column_to_number(alpha_chars), numeric_chars]
 
 
@@ -36,12 +37,11 @@ def column_to_number(column_string):
     
     return result
 
-
 def range(dataframe: pandas.DataFrame, start: str, end: str):
     start = separate_alpha_numeric(start)
     end = separate_alpha_numeric(end)
 
-    return pandas.DataFrame(dataframe.iloc[start[1]:end[1]+1, start[0]:end[0]+1].values)
+    return pandas.DataFrame(dataframe.iloc[start[1]-1:end[1], start[0]:end[0]+1].values)
 
 
 def cell(dataframe: pandas.DataFrame, start: str):
@@ -50,12 +50,17 @@ def cell(dataframe: pandas.DataFrame, start: str):
     return str(dataframe.iloc[start[1], start[0]])
 
 
-def hasPointsOnMistic(dataframe: pandas.DataFrame):
-    return (int(cell(dataframe, "M101")) > 0)
+def cellOfDF(dataframe: pandas.DataFrame, start: str):
+    start = separate_alpha_numeric(start)
 
+    return str(dataframe.iloc[start[1] - 1, start[0]])
+
+
+def hasPointsOnMistic(dataframe: pandas.DataFrame):
+    return (int(cellOfDF(dataframe, "M101")) > 0)
 
 def hasPointsOnPsichiq(dataframe: pandas.DataFrame):
-    return (int(cell(dataframe, "M117")) > 0)
+    return (int(cellOfDF(dataframe, "M117")) > 0)
 
 
 def range_to_json(sheet: pandas.DataFrame, start: str, end: str, keys: str, values: str, name: str):
@@ -96,7 +101,10 @@ def getRangedCombatData(rangeBlock: pandas.DataFrame):
     caracteristica = "A6"
     advertencia = "I6"
 
-    if not cell(rangeBlock, nombre) == "":
+    print(rangeBlock.head)
+    items = ""
+
+    if not cell(rangeBlock, nombre) == "nan":
         items = ", {"
         items += "'nombre': '" + cell(rangeBlock, nombre) + "',"
         items += "'tipo': '" + cell(rangeBlock, tipo) + "',"
@@ -142,7 +150,11 @@ def getBaseCombatData(rangeBlock: pandas.DataFrame):
     caracteristica = "A6"
     advertencia = "I6"
 
-    if not cell(rangeBlock, nombre) == "":
+    print(rangeBlock.head)
+
+    items = ""
+
+    if not cell(rangeBlock, nombre) == "nan":
         items = ", {"
         items += "'nombre': '" + cell(rangeBlock, nombre) + "',"
         items += "'tipo': '" + cell(rangeBlock, tipo) + "',"
@@ -234,6 +246,7 @@ def getPsychicProjectionAsWeapon(sheet: pandas.DataFrame):
     items += "'caracteristica': '-',"
     items += "'advertencia': '-',"
     items += "'municion': '-',"
+    items += "'variable': 'true',"
     items += "'especial': '-'}"
     return items
 
@@ -246,7 +259,7 @@ def getMagicProjectionAsWeapon(sheet: pandas.DataFrame):
     defensa = "C1"
 
     items = ",{"
-    items += "'nombre': 'Proyecci�n Magica',"
+    items += "'nombre': 'Proyección Magica',"
     items += "'tipo': 'Místico',"
     items += "'conocimiento': 'Conocida',"
     items += "'tamanio': 'Normal',"
@@ -264,6 +277,7 @@ def getMagicProjectionAsWeapon(sheet: pandas.DataFrame):
     items += "'caracteristica': '-',"
     items += "'advertencia': '-',"
     items += "'municion': '-',"
+    items += "'variable': 'true',"
     items += "'especial': '-'}"
     return items
 
@@ -299,19 +313,19 @@ def getArmours(sheet: pandas.DataFrame):
 
 def getArmourData(combatSheet: pandas.DataFrame):
     items = ", 'armadura': {"
-    items += "'restriccionMov': '" + cell(combatSheet, "E16") + "',"
-    items += "'penNatural': '" + cell(combatSheet, "H17") + "',"
-    items += "'requisito': '" + cell(combatSheet, "H16") + "',"
-    items += "'penAccionFisica': '" + cell(combatSheet, "S16") + "',"
-    items += "'penNaturalFinal': '" + cell(combatSheet, "S17") + "'"
+    items += "'restriccionMov': '" + cellOfDF(combatSheet, "E16") + "',"
+    items += "'penNatural': '" + cellOfDF(combatSheet, "H17") + "',"
+    items += "'requisito': '" + cellOfDF(combatSheet, "H16") + "',"
+    items += "'penAccionFisica': '" + cellOfDF(combatSheet, "S16") + "',"
+    items += "'penNaturalFinal': '" + cellOfDF(combatSheet, "S17") + "'"
     items += ", 'armaduraTotal': {"
-    items += "'FIL': '" + cell(combatSheet, "I16") + "',"
-    items += "'CON': '" + cell(combatSheet, "J16") + "',"
-    items += "'PEN': '" + cell(combatSheet, "K16") + "',"
-    items += "'CAL': '" + cell(combatSheet, "L16") + "',"
-    items += "'ELE': '" + cell(combatSheet, "M16") + "',"
-    items += "'FRI': '" + cell(combatSheet, "N16") + "',"
-    items += "'ENE': '" + cell(combatSheet, "O16") + "'}"
+    items += "'FIL': '" + cellOfDF(combatSheet, "I16") + "',"
+    items += "'CON': '" + cellOfDF(combatSheet, "J16") + "',"
+    items += "'PEN': '" + cellOfDF(combatSheet, "K16") + "',"
+    items += "'CAL': '" + cellOfDF(combatSheet, "L16") + "',"
+    items += "'ELE': '" + cellOfDF(combatSheet, "M16") + "',"
+    items += "'FRI': '" + cellOfDF(combatSheet, "N16") + "',"
+    items += "'ENE': '" + cellOfDF(combatSheet, "O16") + "'}"
     items += getArmours(combatSheet) + "}"
     return items
 
@@ -352,19 +366,19 @@ def getBasicData(principalSheet: pandas.DataFrame):
     natura = "AB14"
 
     items = "'datosElementales': {"
-    items += "'cansancio': '" + cell(principalSheet, cansancio) + "',"
-    items += "'puntosDeVida': '" + cell(principalSheet, puntosDeVida) + "',"
-    items += "'regeneracion': '" + cell(principalSheet, regeneracion) + "',"
-    items += "'nombre': '" + cell(principalSheet, nombre) + "',"
-    items += "'categoria': '" + cell(principalSheet, categoria) + "',"
-    items += "'nivel': '" + cell(principalSheet, nivel) + "',"
-    items += "'clase': '" + cell(principalSheet, clase) + "',"
-    items += "'acumDanio': '" + cell(principalSheet, acumDanio) + "',"
+    items += "'cansancio': '" + cellOfDF(principalSheet, cansancio) + "',"
+    items += "'puntosDeVida': '" + cellOfDF(principalSheet, puntosDeVida) + "',"
+    items += "'regeneracion': '" + cellOfDF(principalSheet, regeneracion) + "',"
+    items += "'nombre': '" + cellOfDF(principalSheet, nombre) + "',"
+    items += "'categoria': '" + cellOfDF(principalSheet, categoria) + "',"
+    items += "'nivel': '" + cellOfDF(principalSheet, nivel) + "',"
+    items += "'clase': '" + cellOfDF(principalSheet, clase) + "',"
+    items += "'acumDanio': '" + cellOfDF(principalSheet, acumDanio) + "',"
     items += "'creadoConMagia': '" + \
-        cell(principalSheet, creadoConMagia) + "',"
-    items += "'gnosis': '" + cell(principalSheet, gnosis) + "',"
-    items += "'natura': '" + cell(principalSheet, natura) + "',"
-    items += "'movimiento': '" + cell(principalSheet, movimiento) + "' }"
+        cellOfDF(principalSheet, creadoConMagia) + "',"
+    items += "'gnosis': '" + cellOfDF(principalSheet, gnosis) + "',"
+    items += "'natura': '" + cellOfDF(principalSheet, natura) + "',"
+    items += "'movimiento': '" + cellOfDF(principalSheet, movimiento) + "' }"
     return items
 
 
@@ -373,9 +387,9 @@ def getMisticBasicData(mistycSheet: pandas.DataFrame):
     act = "L12"
     zeon = "K18"
 
-    items = "'regen': '" + cell(mistycSheet, regen) + "',"
-    items += "'act': '" + cell(mistycSheet, act) + "',"
-    items += "'zeon': '" + cell(mistycSheet, zeon) + "'"
+    items = "'regen': '" + cellOfDF(mistycSheet, regen) + "',"
+    items += "'act': '" + cellOfDF(mistycSheet, act) + "',"
+    items += "'zeon': '" + cellOfDF(mistycSheet, zeon) + "'"
     return items
 
 
@@ -383,8 +397,8 @@ def basicKiData(kiSheet: pandas.DataFrame):
     maxAcu = "F24"
     genericAcu = "D24"
 
-    items = "'acumulacionMax': '" + cell(kiSheet, maxAcu) + "',"
-    items += "'acumulacionGenerica': '" + cell(kiSheet, genericAcu) + "'"
+    items = "'acumulacionMax': '" + cellOfDF(kiSheet, maxAcu) + "',"
+    items += "'acumulacionGenerica': '" + cellOfDF(kiSheet, genericAcu) + "'"
     return items
 
 

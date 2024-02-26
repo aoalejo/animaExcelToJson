@@ -32,6 +32,7 @@ def convertSheet(request: https_fn.Request) -> https_fn.Response:
 
     body = request.get_json(silent=True)
     sheet = None
+    json = None
     
     try:
         sheet = body["sheet"]
@@ -41,27 +42,32 @@ def convertSheet(request: https_fn.Request) -> https_fn.Response:
     if sheet is None:
         return https_fn.Response("No sheet provided", status=400)
     
+    #try:
     file = excelToJson.readFileFromBase64(sheet)
 
     json = excelToJson.exportJson(file)
 
     json = json.replace("'", '"')
+    #except:
+       # print("error converting sheet")
+        #return https_fn.Response("Error converting sheet", status=500)
+    
+    if json is None:
+        return https_fn.Response("Error converting sheet", status=500)
 
     # Push the new message into Cloud Firestore using the Firebase Admin SDK.
     elapsed_time = time.process_time() - t
-
-    firestore_client: firestore.Client = firestore.Client()
 
     # Push the new character into Cloud Firestore using the Firebase Admin SDK.
     responseObject = '{"time": "all done at ' + str(elapsed_time) + ' seconds", "sheet": ' + json + '}'
 
     try:
+        firestore_client: firestore.Client = firestore.Client()
         firestore_client.collection("characters").add({"time": str(elapsed_time), "sheet": json})
     except:
         print("error saving character")
 
     print('{"time": "all done at ' + str(elapsed_time) + ' seconds"')
-
 
     # Send back a message that we've successfully written the message
     return https_fn.Response(responseObject)
