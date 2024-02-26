@@ -101,7 +101,6 @@ def getRangedCombatData(rangeBlock: pandas.DataFrame):
     caracteristica = "A6"
     advertencia = "I6"
 
-    print(rangeBlock.head)
     items = ""
 
     if not cell(rangeBlock, nombre) == "nan":
@@ -149,8 +148,6 @@ def getBaseCombatData(rangeBlock: pandas.DataFrame):
     especial = "H6"
     caracteristica = "A6"
     advertencia = "I6"
-
-    print(rangeBlock.head)
 
     items = ""
 

@@ -63,7 +63,7 @@ def convertSheet(request: https_fn.Request) -> https_fn.Response:
 
     try:
         firestore_client: firestore.Client = firestore.Client()
-        firestore_client.collection("characters").add({"time": str(elapsed_time), "sheet": json})
+        firestore_client.collection("characters").add({"time": str(elapsed_time), "sheet": json}, document_id=str(json.__hash__))
     except:
         print("error saving character")
 
