@@ -474,7 +474,7 @@ def exportJson(dataframe: pandas.DataFrame):
     # START Mistic Section
     if hasPointsOnMistic(pointsSheet):
         json += ", 'Misticos': {"
-        json += getMisticBasicData()
+        json += getMisticBasicData(mistycSheet)
         json += ", " + range_to_json(mistycSheet,
                                      "C15", "H25", "A1", "F1", "Vias")
         json += ", " + range_to_json(mistycSheet,
