@@ -28,9 +28,12 @@ def separate_alpha_numeric(input_string):
 
 def column_to_number(column_string):
     column_string = column_string.upper()
-    result = 0
+    result = -1
+
+    # TODO: 
     for char in column_string:
-        result = result * 26 + (ord(char) - ord('A'))
+        result = ((result + 1) * 26) + ((ord(char) - ord('A')))
+    
     return result
 
 
