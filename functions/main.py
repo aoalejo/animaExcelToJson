@@ -28,29 +28,46 @@ def convertSheet(request: https_fn.Request) -> https_fn.Response:
     a new document in the messages collection."""
     # Grab the text parameter.
     # sheet = req.args["sheet"]
-    print(request)
+    print(request.headers)
 
     body = request.get_json(silent=True)
+
     sheet = None
     json = None
-    
+    file = None
+    usedFile = False
+
     try:
         sheet = body["sheet"]
+        print("sheet in body provided")
     except:
-        print("bad request")
+        print("No body provided")
+
+    try:
+        sheet = request.files["sheet"]
+        print("sheet in files provided")
+        usedFile = True
+
+    except:
+        print("No multipart file provided")
 
     if sheet is None:
         return https_fn.Response("No sheet provided", status=400)
     
-    #try:
-    file = excelToJson.readFileFromBase64(sheet)
+    try:
+        if (usedFile):
+            print("readFile")
+            file = excelToJson.readFile(sheet)
 
-    json = excelToJson.exportJson(file)
+        else:
+            print("readFileFromBase64")
+            file = excelToJson.readFileFromBase64(sheet)
 
-    json = json.replace("'", '"')
-    #except:
-       # print("error converting sheet")
-        #return https_fn.Response("Error converting sheet", status=500)
+        json = excelToJson.exportJson(file)
+        json = json.replace("'", '"')
+    except:
+        print("error converting sheet")
+        return https_fn.Response("Error converting sheet", status=500)
     
     if json is None:
         return https_fn.Response("Error converting sheet", status=500)

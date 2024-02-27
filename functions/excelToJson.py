@@ -428,6 +428,19 @@ def readFileFromBase64(base64Excel: str):
 
     return dataframe
 
+def readFile(file):
+    t = time.process_time()
+    
+    # Read file
+    dataframe = pandas.read_excel(
+        file, ["Principal", "Combate", "Psíquicos", "Místicos", "PDs", "Elan", "Ki"])
+
+    elapsed_time = time.process_time() - t
+
+    print("all done at %.2f seconds" % elapsed_time)
+
+    return dataframe
+
 
 def exportJson(dataframe: pandas.DataFrame):
     principalSheet = dataframe["Principal"]
