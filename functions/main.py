@@ -87,12 +87,14 @@ def convertSheet(request: https_fn.Request) -> https_fn.Response:
     # Push the new message into Cloud Firestore using the Firebase Admin SDK.
     elapsed_time = time.process_time() - t
 
+    objectId = str(hash(json))
+
     # Push the new character into Cloud Firestore using the Firebase Admin SDK.
-    responseObject = '{"time": "all done at ' + str(elapsed_time) + ' seconds", "sheet": ' + json + '}'
+    responseObject = '{"time": "all done at ' + str(elapsed_time) + ' seconds", "objectId": "' + objectId + '", "sheet": ' + json + '}'
 
     try:
         firestore_client: firestore.Client = firestore.Client()
-        firestore_client.collection("characters").add({"time": str(elapsed_time), "sheet": json}, document_id=str(str(hash(json))))
+        firestore_client.collection("characters").add({"time": str(elapsed_time), "sheet": json}, document_id=objectId)
     except:
         print("error saving character")
 
