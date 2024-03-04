@@ -23,11 +23,23 @@ app = initialize_app()
 @https_fn.on_request()
 def convertSheet(request: https_fn.Request) -> https_fn.Response:
     t = time.process_time()
+    print(request.method)
 
+    # Set CORS headers for the preflight request
+    if request.method == "OPTIONS":
+        # Allows POST requests from app origin with the Content-Type
+        # header and caches preflight response for an 3600s
+        headers = {
+            "Access-Control-Allow-Origin": "https://amt-v3.web.app",
+            "Access-Control-Allow-Methods": "POST",
+            "Access-Control-Allow-Headers": "Content-Type, Accept",
+            "Access-Control-Max-Age": "300",
+        }
+
+        return ("", 204, headers)
+    
     """Take the text parameter passed to this HTTP endpoint and insert it into
     a new document in the messages collection."""
-    # Grab the text parameter.
-    # sheet = req.args["sheet"]
     print(request.headers)
 
     body = request.get_json(silent=True)
@@ -86,5 +98,7 @@ def convertSheet(request: https_fn.Request) -> https_fn.Response:
 
     print('{"time": "all done at ' + str(elapsed_time) + ' seconds"')
 
+    headers = {"Access-Control-Allow-Origin": "*"}
+
     # Send back a message that we've successfully written the message
-    return https_fn.Response(responseObject)
+    return https_fn.Response(responseObject, 200, headers)
