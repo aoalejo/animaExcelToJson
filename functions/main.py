@@ -3,21 +3,13 @@
 # Deploy with `firebase deploy`
 
 import time
-import json
+import hashlib
 
 from firebase_functions import https_fn
 from firebase_admin import initialize_app
 from google.cloud import firestore
 
 import excelToJson
-
-# initialize_app()
-#
-#
-# @https_fn.on_request()
-# def on_request_example(req: https_fn.Request) -> https_fn.Response:
-#     return https_fn.Response("Hello world!")
-
 app = initialize_app()
 
 @https_fn.on_request()
@@ -87,7 +79,8 @@ def convertSheet(request: https_fn.Request) -> https_fn.Response:
     # Push the new message into Cloud Firestore using the Firebase Admin SDK.
     elapsed_time = time.process_time() - t
 
-    objectId = str(hash(json))
+    m = hashlib.sha256(json.encode(), usedforsecurity=False)
+    objectId = str(m.hexdigest())
 
     # Push the new character into Cloud Firestore using the Firebase Admin SDK.
     responseObject = '{"time": "all done at ' + str(elapsed_time) + ' seconds", "objectId": "' + objectId + '", "sheet": ' + json + '}'
