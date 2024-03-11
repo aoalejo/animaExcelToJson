@@ -55,12 +55,20 @@ def cellOfDF(dataframe: pandas.DataFrame, start: str):
 
     return str(dataframe.iloc[start[1] - 1, start[0]])
 
+def intCellOfDF(dataframe: pandas.DataFrame, start: str):
+    start = separate_alpha_numeric(start)
+    value = str(dataframe.iloc[start[1] - 1, start[0]])
+
+    try:
+        return int(value)
+    except:
+        return 0
 
 def hasPointsOnMistic(dataframe: pandas.DataFrame):
-    return (int(cellOfDF(dataframe, "M101")) > 0)
+    return (int(intCellOfDF(dataframe, "M101")) > 0)
 
 def hasPointsOnPsichiq(dataframe: pandas.DataFrame):
-    return (int(cellOfDF(dataframe, "M117")) > 0)
+    return (int(intCellOfDF(dataframe, "M117")) > 0)
 
 
 def range_to_json(sheet: pandas.DataFrame, start: str, end: str, keys: str, values: str, name: str):
